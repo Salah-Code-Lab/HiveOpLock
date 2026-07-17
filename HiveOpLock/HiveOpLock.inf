@@ -1,0 +1,133 @@
+; BCDGuard.inf
+; BCD Write Protection Minifilter
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = "SecurityEnhancer"
+ClassGuid   = {d02bc3da-0c8e-4945-9bd5-f1883c226c8c}
+Provider    = %ProviderString%
+DriverVer   = 01/01/2026,1.0.0.0
+CatalogFile = HiveOplock.cat
+PnpLockdown = 1
+
+[SourceDisksNames]
+1 = %Disk1%
+
+[SourceDisksFiles]
+HiveOplock.sys = 1
+
+[DestinationDirs]
+HiveOplockDownlevel.CopyDriverFiles = 12            ;%windir%\system32\drivers
+HiveOplockDownlevel.DelDriverFiles  = 12            ;%windir%\system32\drivers
+HiveOplock.DriverFiles              = 13            ;driver store
+
+;;
+;; Default install sections
+;;
+
+[DefaultInstall.NTamd64.10.0...25952]
+OptionDesc          = %HiveOplockServiceDesc%
+CopyFiles           = HiveOplock.DriverFiles
+
+[DefaultInstall.NTamd64.10.0...25952.Services]
+AddService          = %HiveOplockServiceName%,,HiveOplock.Service
+
+;
+; Support sections
+;
+
+[HiveOplock.Service]
+DisplayName      = %HiveOplockServiceName%
+Description      = %HiveOplockServiceDesc%
+ServiceBinary    = %13%\HiveOplock.sys              ;driver store
+Dependencies     = %FltmgrServiceName%            ;FltMgr
+ServiceType      = 2                              ;SERVICE_FILE_SYSTEM_DRIVER
+StartType        = 1                              ;SERVICE_SYSTEM_START
+ErrorControl     = 1                              ;SERVICE_ERROR_NORMAL
+LoadOrderGroup   = "FSFilter Security Enhancer"
+AddReg           = HiveOplock.AddRegistry, Common.AddRegistry
+
+[HiveOplock.AddRegistry]
+HKR,"Parameters","SupportedFeatures",0x00010001,0x3
+HKR,"Parameters\Instances",%RegDefaultInstanceValueName%,0x00000000,%DefaultInstance%
+HKR,"Parameters\Instances\%Instance1.Name%",%RegAltitudeValueName%,0x00000000,%Instance1.Altitude%
+HKR,"Parameters\Instances\%Instance1.Name%",%RegFlagsValueName%,0x00010001,%Instance1.Flags%
+
+[HiveOplock.DriverFiles]
+HiveOplock.sys
+
+;;
+;; Registry values shared for all OS versions
+;;
+
+[Common.AddRegistry]
+HKR,"Parameters","DebugFlags",0x00010001,0
+
+;;
+;; Downlevel default install sections
+;;
+
+[DefaultInstall.NTamd64]
+OptionDesc          = %HiveOplockServiceDesc%
+CopyFiles           = HiveOplockDownlevel.CopyDriverFiles
+
+[DefaultInstall.NTamd64.Services]
+AddService          = %HiveOplockServiceName%,,HiveOplockDownlevel.Service
+
+;;
+;; Downlevel default uninstall sections
+;;
+
+[DefaultUninstall.NTamd64]
+LegacyUninstall = 1
+DelFiles        = HiveOplockDownlevel.DelDriverFiles
+
+[DefaultUninstall.NTamd64.Services]
+DelService      = %HiveOplockServiceName%,0x204
+
+;
+; Downlevel support sections
+;
+
+[HiveOplockDownlevel.Service]
+DisplayName      = %HiveOplockServiceName%
+Description      = %HiveOplockServiceDesc%
+ServiceBinary    = %12%\HiveOplock.sys              ;%windir%\system32\drivers
+Dependencies     = %FltmgrServiceName%            ;FltMgr
+ServiceType      = 2                              ;SERVICE_FILE_SYSTEM_DRIVER
+StartType        = 1                              ;SERVICE_SYSTEM_START
+ErrorControl     = 1                              ;SERVICE_ERROR_NORMAL
+LoadOrderGroup   = "FSFilter Security Enhancer"
+AddReg           = HiveOplockDownlevel.AddRegistry, Common.AddRegistry
+
+[HiveOplockDownlevel.AddRegistry]
+HKR,,"SupportedFeatures",0x00010001,0x3
+HKR,"Instances",%RegDefaultInstanceValueName%,0x00000000,%DefaultInstance%
+HKR,"Instances\%Instance1.Name%",%RegAltitudeValueName%,0x00000000,%Instance1.Altitude%
+HKR,"Instances\%Instance1.Name%",%RegFlagsValueName%,0x00010001,%Instance1.Flags%
+
+[HiveOplockDownlevel.CopyDriverFiles]
+HiveOplock.sys
+
+[HiveOplockDownlevel.DelDriverFiles]
+HiveOplock.sys
+
+;;
+;; String Section
+;;
+
+[Strings]
+ProviderString                      = "Sifps"
+HiveOplockServiceDesc                 = "Hive Oplock Protection Filter"
+HiveOplockServiceName                 = "HiveOplock"
+FltmgrServiceName                   = "FltMgr"
+RegDefaultInstanceValueName         = "DefaultInstance"
+RegAltitudeValueName                = "Altitude"
+RegFlagsValueName                   = "Flags"
+Disk1                               = "HiveOplock Installation Disk"
+
+;Instances specific information.
+DefaultInstance      = "HiveOplock Instance"
+Instance1.Name       = "HiveOplock Instance"
+Instance1.Altitude   = "402040"
+Instance1.Flags      = 0x0
