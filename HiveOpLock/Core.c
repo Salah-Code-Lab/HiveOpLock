@@ -10,9 +10,9 @@ BOOLEAN gProtectionActive = FALSE;
 
 // Protected filenames (Sufix matching logic)
 // Check if filename matches protected hives via a reliable suffix validation
-UNICODE_STRING gUsersPattern = RTL_CONSTANT_STRING(L"*\\Users\\*");
-UNICODE_STRING gNtUserTail = RTL_CONSTANT_STRING(L"\\ntuser.dat");
-UNICODE_STRING gUsrClassTail = RTL_CONSTANT_STRING(L"\\usrclass.dat");
+UNICODE_STRING gUsersPattern = RTL_CONSTANT_STRING(L"*\\USERS\\*");
+UNICODE_STRING gNtUserTail = RTL_CONSTANT_STRING(L"\\NTUSER.dat");
+UNICODE_STRING gUsrClassTail = RTL_CONSTANT_STRING(L"\\USRCLASS.dat");
 
 // Oplock FSCTLs
 
